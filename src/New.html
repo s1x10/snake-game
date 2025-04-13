@@ -5,7 +5,7 @@
         <title>Snake Game</title>
         <style>
             canvas {
-                border: 30px solid black;
+                border: 20px solid black;
             }
         </style>
     </head>
@@ -14,12 +14,19 @@
         <div>
             <span>Points</span><span id="points" style="margin-left: 8px;">0</span>
             <button id="startGameButton" onclick="restartGame();">Start game</button>
-            
         </div>
         <div>
             <label>Game size:</label>
-            <input onchange="resizeGame();" type="number" id="size" name="size" max="80" min="20" value="40">
+            <!--<input onchange="resizeGame();" type="number" id="size" name="size" max="8" min="1" value="4">
+            <br><br>-->
+            <select onchange="resizeGame()" name="size" id="size" value="4">
+            <option value=2>Little</option>
+            <option value=3>Medium</option>
+            <option value=4>Big</option>
+            <option value=5>Very big</option>
+            <option value=6>Massive</option>
             <br><br>
+            </select>
         </div>
         <canvas id="snakegame" width="200px" height="200px"></canvas>
         <script>
@@ -30,7 +37,6 @@
             let isFirstRun = true
             let pointElement = document.getElementById("points")
             let frameRate = 1000 / 5;
-            //fungerar inte över 80
             let squareSize = { x: 20, y: 20 }
             let food = {x: 2, y: 4}
             let points = 0
@@ -48,9 +54,19 @@
 
 
             function resizeGame(){
-                let size = parseInt(document.getElementById("size").value)
-                canvas.width = squareSize.x * size
-                canvas.height = squareSize.y * size
+                if(isAlive === false) {
+                    document.getElementById("size").innerHTML = "<option value=2>Little</option>"
+                    document.getElementById("size").innerHTML += "<option value=3>Medium</option>"
+                    document.getElementById("size").innerHTML += "<option value=4>Big</option>"
+                    document.getElementById("size").innerHTML += "<option value=5>Very big</option>"
+                    document.getElementById("size").innerHTML += "<option value=6>Massive</option>"
+                    console.log(document.getElementById("size"))
+                    let size = parseInt(document.getElementById("size").value) * 10
+                    canvas.width = squareSize.x * size
+                    canvas.height = squareSize.y * size
+                }else {
+                    document.getElementById("size").innerHTML = "<option>can't change during game!</option>"
+                }
             }
 
             resizeGame()
@@ -81,15 +97,14 @@
                 let canvasy = canvas.height
                 let cx = canvasx /= squareSize.x
                 let cy = canvasy /= squareSize.y
-                cx2 = cx/2
-                cy2 = cy/2
+                let cx2 = cx/2
+                let cy2 = cy/2
                 food = {x: 2, y: 4}
                 points = 0
                 snake = 
                     [{x: cx2, y:cy2},
                     {x: cx2, y:cy2 + 1},
                     {x: cx2, y:cy2 + 2}]
-                console.log(cx2 + " " + cy2)
                 speed = {x: 0, y: -1}
                 lastDirection = {x: 0, y: -1};
                 move =
@@ -157,10 +172,6 @@
 
 
                 }
-                if (isAlive === false) {
-                    drawGameOver()
-                    console.log("eae")
-                }
                 if (food.x === nextPos.x && food.y === nextPos.y) {
                     snake.unshift(nextPos);
                     points += 1
@@ -182,31 +193,30 @@
 
                 }
                 let segment = snake.slice(1).some(segment => segment.x === nextPos.x && segment.y === nextPos.y);
-
-                if (size => 50){
-                    let canvasx = canvas.width
-                    let canvasy = canvas.height
-                    let cx = canvasx /= squareSize.x + 0.25
-                    let cy = canvasy /= squareSize.y + 0.25
-                    if (segment || nextPos.x > cx || nextPos.x < 0 || nextPos.y > cy || nextPos.y < 0) {
-                        playerDied();
-                    }
-                }else{
-                    let canvasx = canvas.width
-                    let canvasy = canvas.height
-                    let cx = canvasx /= squareSize.x + 1
-                    let cy = canvasy /= squareSize.y + 1
-                    if (segment || nextPos.x > cx || nextPos.x < 0 || nextPos.y > cy || nextPos.y < 0) {
-                        playerDied();
-                    }
+                
+                let canvasx = canvas.width
+                let canvasy = canvas.height
+                let cx = canvasx /= squareSize.x
+                let cy = canvasy /= squareSize.y
+                if (segment || nextPos.x >= cx || nextPos.x < 0 || nextPos.y >= cy || nextPos.y < 0) {
+                    playerDied();
                 }
+                
 
+            }
+            function deathLogic(){
+                document.getElementById("size").innerHTML = "<option value=2>Little</option>"
+                document.getElementById("size").innerHTML += "<option value=3>Medium</option>"
+                document.getElementById("size").innerHTML += "<option value=4>Big</option>"
+                document.getElementById("size").innerHTML += "<option value=5>Very big</option>"
+                document.getElementById("size").innerHTML += "<option value=6>Massive</option>"
+                //drawGameOver()
             }
             function logic() {
                 if (isAlive) {
                     gameLogic()
                 } else {
-                    
+                    deathLogic()
                 }
             }
                 
