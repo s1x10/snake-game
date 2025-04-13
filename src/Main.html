@@ -1,0 +1,110 @@
+﻿
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Snake Game</title>
+        <style>
+            canvas {
+                border: 30px solid black;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="snakegame" width="600" height="600"></canvas>
+        <script>
+
+            let xspeed = 0
+            let yspeed = -30
+            
+            let x = 300
+            let y = 300
+            
+            //let snake = [{x: 300, y:300},
+            //            {x: 300, y:270},
+            //             {x: 300, y:240}]
+            
+            
+            document.addEventListener('keydown', (event) => {
+                if (event.key === "ArrowRight") {
+                    xspeed = 30
+                    yspeed = 0
+                }else if (event.key === "ArrowLeft"){
+                    xspeed = -30
+                    yspeed = 0
+                }else if (event.key === "ArrowUp"){
+                    xspeed = 0
+                    yspeed = -30
+                }else if (event.key === "ArrowDown"){
+                    xspeed = 0
+                    yspeed = 30
+                }else{
+                }
+            })
+            function randomIntFromInterval(min, max) { // min and max included 
+                return Math.floor(Math.random() * (max - min + 1) + min);
+            }
+            const canvas = document.querySelector("canvas");
+            const ctx = canvas.getContext("2d")
+            
+            
+            function drawS() {
+
+                let points = 0
+                x += xspeed
+                y += yspeed
+                
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                ctx.fillStyle = "blue"
+                ctx.fillRect(x, y, 30, 30)
+                
+                
+                ctx.fillStyle = "red"
+                ctx.fillRect(sx , sy, 30, 30)
+                if (sx === x && sy === y || sx === 0 && sy === 0) {
+                    let dx = canvas.width - 600
+                    let dy = canvas.height - 600
+                    let dxx = canvas.width - 30
+                    let dyy = canvas.height - 30
+                    ddx = dx / 30
+                    ddy = dy / 30
+                    ddxx = dxx / 30
+                    ddyy = dyy / 30
+                    let spawnx = randomIntFromInterval(ddx, ddxx)
+                    let spawny = randomIntFromInterval(ddy, ddyy)
+                    spawnx *= 30
+                    spawny *= 30
+                    sx = spawnx
+                    sy = spawny
+                    points += 1
+                }
+
+                console.log(points)
+                
+                //console.log(x)
+                //console.log(y)
+
+                //const image = document.createElement("img");
+                //image.src = "images/image.png";
+                //document.body.appendChild(image);
+            }
+
+            let dx = canvas.width - 600
+            let dy = canvas.height - 600
+            let dxx = canvas.width - 30
+            let dyy = canvas.height - 30
+            ddx = dx / 30
+            ddy = dy / 30
+            ddxx = dxx / 30
+            ddyy = dyy / 30
+            let spawnx = randomIntFromInterval(ddx, ddxx)
+            let spawny = randomIntFromInterval(ddy, ddyy)
+            spawnx *= 30
+            spawny *= 30
+            sx = spawnx
+            sy = spawny
+            let stop = setInterval(requestAnimationFrame, 1000 / 5, drawS)
+            
+        </script>
+    </body>
+</html>
