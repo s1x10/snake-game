@@ -136,7 +136,7 @@
                 move.splice(0, move.length)
                 speed.x = 0;
                 speed.y = 0;
-
+                
                 isFirstRun = false
                 document.getElementById("startGameButton").innerText = "Restart game"
                 document.getElementById("size").innerHTML = "<option value=2>Little</option>"
@@ -146,7 +146,6 @@
                 document.getElementById("size").innerHTML += "<option value=6>Massive</option>"
             }
             function checkIfBad(){
-                
                 if (move[0] === 0 && move[1] === 1){
                     move[1] = null
                 }
