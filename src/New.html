@@ -145,44 +145,37 @@
                 document.getElementById("size").innerHTML += "<option value=5>Very big</option>"
                 document.getElementById("size").innerHTML += "<option value=6>Massive</option>"
             }
-            function checkIfBad(){
-                if (move[0] === 0 && move[1] === 1){
-                    move[1] = null
-                }
-                if (move[0] === 1 && move[1] === 0){
-                    move[1] = null
-                }
-                if (move[0] === 2 && move[1] === 3){
-                    move[1] = null
-                }
-                if (move[0] === 3 && move[1] === 2) {
-                    move[1] = null
-                }
+            function movementChecker(){
+                check(0, 1)
+                check(1, 0)
+                check(2, 3)
+                check(3, 2)
                 
-                if (move[1] === 0 && move[2] === 1){
-                    move[2] = null
-                }
-                if (move[1] === 1 && move[2] === 0){
-                    move[2] = null
-                }
-                if (move[1] === 2 && move[2] === 3){
-                    move[2] = null
-                }
-                if (move[1] === 3 && move[2] === 2) {
-                    move[2] = null
-                }
-                
-
-
+                check2(0, 1)
+                check2(1, 0)
+                check2(2, 3)
+                check2(3, 2)
+  
                 if(move.length >= 3){
                     move.pop()
                 }
                 console.log(move.length)
             }
 
+            function check(moveNumber, moveNumber2) {
+                if (move[0] === moveNumber && move[1] === moveNumber2){
+                    move[1] = null
+                }
+            }
+            function check2(moveNumber, moveNumber2) {
+                if (move[1] === moveNumber && move[2] === moveNumber2){
+                    move[2] = null
+                }
+            }
+            
             function gameLogic() {
 
-                checkIfBad()
+                movementChecker()
                 
                 if (move[0] === 0) {
                     speed.x = 1;
