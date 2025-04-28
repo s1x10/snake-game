@@ -1,6 +1,6 @@
 ﻿
 <!DOCTYPE html>
-<html>
+<html style="height: 100%; margin: 0;">
     <head>
         <title>Snake Game</title>
         <style>
@@ -9,37 +9,50 @@
             }
         </style>
     </head>
-    <body>
+    <body style="height: 100%; margin: 0; position: relative">
     
-        <div>
-            <span>Points</span><span id="points" style="margin-left: 8px;">0</span>
-            <button id="startGameButton" onclick="restartGame();">Start game</button>
+        <div>  
+            <canvas id="snakegame" width="200" height="200" >  </canvas>              
+            <div  id="menu" hidden style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);  flex-direction: column; gap: 20px; justify-content: center; align-items: center;" >
+                
+                <div>
+                    <span>Points</span><span id="points" style="margin-left: 8px;">0</span>
+                    <button  id="startGameButton" onclick="restartGame();">Start game</button>
+                </div>
+                <div>
+                    <label>apple amount:</label>
+                    <select onchange="appleAmount()" id="Number of apples" name="Number of apples" value="1">
+                        <option value=1>1 apple</option>
+                        <option value=2>2 apples</option>
+                        <option value=3>3 apples</option>
+                        <option value=4>4 apples</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Game size:</label>
+                    <!--<input onchange="resizeGame();" type="number" id="size" name="size" max="8" min="1" value="4">
+                    <br><br>-->
+                    <select onchange="resizeGame()" name="size" id="size" value="4">
+                        <option value=2>Little</option>
+                        <option value=3>Medium</option>
+                        <option value=4>Big</option>
+                        <option value=5>Very big</option>
+                        <option value=6>Massive</option>
+                    </select>
+                </div>
+            </div>
+            <div  id="restartGameMenu" hidden style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);  flex-direction: column; gap: 20px; justify-content: center; align-items: center;" >
+                <div>
+                    <span>Points</span><span id="pointsR" style="margin-left: 10px; margin-top: 20px">0</span>
+                    <button  id="restartGameButton" onclick="restartGame();">Start game</button>
+                    <button  id="openMenuButton" onclick="openMenu();">Menu</button>
+                </div>
+                
+            </div>
         </div>
-        <div>
-            <label>apple amount:</label>
-            <select onchange="appleAmount()" id="Number of apples" name="Number of apples" value="1">
-                <option value=1>1 apple</option>
-                <option value=2>2 apples</option>
-                <option value=3>3 apples</option>
-                <option value=4>4 apples</option>
-                <br><br>
-            </select>
-            
-        </div>
-        <div>
-            <label>Game size:</label>
-            <!--<input onchange="resizeGame();" type="number" id="size" name="size" max="8" min="1" value="4">
-            <br><br>-->
-            <select onchange="resizeGame()" name="size" id="size" value="4">
-            <option value=2>Little</option>
-            <option value=3>Medium</option>
-            <option value=4>Big</option>
-            <option value=5>Very big</option>
-            <option value=6>Massive</option>
-            <br><br>
-            </select>
-        </div>
-        <canvas id="snakegame" width="200px" height="200px">  </canvas>
+        
+        
+
         
         
         <script>
@@ -47,15 +60,18 @@
             const canvas = document.querySelector("canvas");
             const ctx = canvas.getContext("2d")
             canvas.getBoundingClientRect()
-            let isFirstRun = true
             let pointElement = document.getElementById("points")
+            let restartGameMenu = document.getElementById("restartGameMenu")
+            let menu = document.getElementById("menu")
+            let restartGameButton = document.getElementById("restartGameButton")
+            let startGameButton = document.getElementById("startGameButton")
             let frameRate = 1000 / 5;
             let squareSize = { x: 20, y: 20 }
             let food = {x: 2, y: 4}
             let food1 = {x: 4, y: 7}
             let food2 = {x: 8, y: 4}
             let food3 = {x: 9, y: 3}
-            
+            let isFirstRun = true
             let points = 0
             let snake =
                 [
@@ -68,7 +84,8 @@
                 [
                 ]
             let isAlive = false
-
+            
+            
             function canvasCenter(){
                 const rect = canvas.getBoundingClientRect()
                 canvas.style.position = 'absolute'
@@ -83,8 +100,22 @@
             window.addEventListener('resize', canvasCenter)
             
             resizeGame()
-            drawMenu()
-            
+            let size = parseInt(document.getElementById("size").value)
+            let ButtonWidth = (squareSize.x * 2) * size
+            let ButtonHeight = (squareSize.y * 1) * size
+            let menuButtonX = (canvas.width - ButtonWidth) / 2
+            let menuButtonY = (canvas.height - ButtonHeight) / 2 + ButtonHeight
+            openMenu()
+
+
+
+            function openMenu(){
+                restartGameMenu.hidden = true
+                menu.hidden = false
+            }
+            function openRestartGameMenu(){
+                restartGameMenu.hidden = false
+            }
             function keydown() {
                 document.addEventListener('keydown', (event) => {
 
@@ -151,6 +182,7 @@
             }
             
             function restartGame() {
+                
                 let canvasx = canvas.width
                 let canvasy = canvas.height
                 let cx = canvasx /= squareSize.x
@@ -169,11 +201,15 @@
                     [
                     ]
                 isAlive = true
+                isFirstRun = false
+                restartGameButton.innerText  = "Restart Game"
+                menu.hidden = true
+                restartGameMenu.hidden = true
                 setPoint(points)
                 resizeGame()
                 noChangeApple()
             }
-
+            
             function resizeGame(){
                 if(isAlive === false) {
 
@@ -182,21 +218,15 @@
                     canvas.width = squareSize.x * size
                     canvas.height = squareSize.y * size
                     canvasCenter()
-                }else {
-                    document.getElementById("size").innerHTML = "<option>can't change during game!</option>"
                 }
-                let backgroundEasy = document.getElementById("BackgroundEasy")
 
             }
-            function noChangeApple(){
-                let applesValue= document.getElementById("Number of apples").value
-                document.getElementById("Number of apples").innerHTML = "<option value='" + applesValue + "'>can't change during game!</option>";
-                document.getElementById("Number of apples").value = applesValue
-            }
+
             function randomIntFromInterval(min, max) { // min and max included 
                 return Math.floor(Math.random() * (max - min + 1) + min);
             }
             function playerDied() {
+                openRestartGameMenu()
                 //death logic
                 isAlive = false
                 console.log(isAlive)
@@ -210,21 +240,6 @@
                 speed.x = 0;
                 speed.y = 0;
                 
-                isFirstRun = false
-                document.getElementById("startGameButton").innerText = "Restart game"
-                document.getElementById("size").innerHTML = "<option value=2>Little</option>"
-                document.getElementById("size").innerHTML += "<option value=3>Medium</option>"
-                document.getElementById("size").innerHTML += "<option value=4>Big</option>"
-                document.getElementById("size").innerHTML += "<option value=5>Very big</option>"
-                document.getElementById("size").innerHTML += "<option value=6>Massive</option>"
-
-                document.getElementById("Number of apples").innerHTML = "<option value=1>1 apple</option>"
-                document.getElementById("Number of apples").innerHTML += "<option value=2>2 apples</option>"
-                document.getElementById("Number of apples").innerHTML += "<option value=3>3 apples</option>"
-                document.getElementById("Number of apples").innerHTML += "<option value=4>4 apples</option>"
-                //<option value="2">2 apples</option>
-                //<option value="3">3 apples</option>
-                //<option value="4">4 apples</option>
             }
             function movementChecker(){
                 check(0, 1)
@@ -351,33 +366,6 @@
                     snake.unshift(nextPos)
                     snake.pop()
                 }
-                /*if (numberOfApples === 1) {
-                    
-                    if (!ate) {
-                        snake.unshift(nextPos);
-                        snake.pop();
-                    } 
-                } else if (numberOfApples === 2) {
-                    let ate = foodHandeler(food) || foodHandeler(food1)
-                    if (!ate) {
-                        snake.unshift(nextPos);
-                        snake.pop();
-                    }
-                } else if (numberOfApples === 3) {
-                    let ate = foodHandeler(food) || foodHandeler(food1) || foodHandeler(food2)
-                    if (!ate) {
-                        snake.unshift(nextPos);
-                        snake.pop();
-                    }
-                } else if (numberOfApples === 4) {
-                   let ate = foodHandeler(food) || foodHandeler(food1) || foodHandeler(food2) || foodHandeler(food3)
-                    if (!ate) {
-                        snake.unshift(nextPos);
-                        snake.pop();
-                    }
-                }*/
-                
-                
 
             }
 
@@ -553,22 +541,14 @@
                 }
             }
             
-            function drawMenu(){
-                ctx.fillStyle = "rgba(0, 0, 255, 0.3)"
-                ctx.fillRect(0, 0, canvas.width, canvas.height)
-                
-            }
+            
+            
             function drawBackground(){
                 var backgroundEasy = new Image()
                 backgroundEasy.src="./img/snakeBackgroundEasy.png"
                 backgroundEasy.onload = function (){
                     ctx.drawImage(backgroundEasy, 0, 0)
                 }
-            }
-            function drawGameOver() {
-                //ctx.fillRect(0, 0, canvas.width, canvas.height)
-                ctx.fillStyle = "green"
-                ctx.fillRect(100, 100, 400, 400)
             }
             
             
