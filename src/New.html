@@ -12,11 +12,11 @@
     <body style="height: 100%; margin: 0; position: relative">
     
         <div>  
-            <canvas id="snakegame" width="200" height="200" >  </canvas>              
+            <canvas id="snakegame" width="200" height="200" style="position: relative">  </canvas>
+            
             <div  id="menu" hidden style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);  flex-direction: column; gap: 20px; justify-content: center; align-items: center;" >
-                
                 <div>
-                    <span>Points</span><span id="points" style="margin-left: 8px;">0</span>
+                    <span>Points</span><span id="pointsG" style="margin-left: 8px;">0</span>
                     <button  id="startGameButton" onclick="restartGame();">Start game</button>
                 </div>
                 <div>
@@ -30,14 +30,22 @@
                 </div>
                 <div>
                     <label>Game size:</label>
-                    <!--<input onchange="resizeGame();" type="number" id="size" name="size" max="8" min="1" value="4">
-                    <br><br>-->
                     <select onchange="resizeGame()" name="size" id="size" value="4">
                         <option value=2>Little</option>
                         <option value=3>Medium</option>
                         <option value=4>Big</option>
                         <option value=5>Very big</option>
                         <option value=6>Massive</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Game speed:</label>
+                    <select onchange="setSpeed()" name="speed" id="speed" value="5">
+                        <option value="4">Slow</option>
+                        <option value="5">Medium</option>
+                        <option value="6">Fast</option>
+                        <option value="7">Very fast</option>
+                        <option value="10">Impossible</option>
                     </select>
                 </div>
             </div>
@@ -47,7 +55,9 @@
                     <button  id="restartGameButton" onclick="restartGame();">Start game</button>
                     <button  id="openMenuButton" onclick="openMenu();">Menu</button>
                 </div>
-                
+            </div>
+            <div id="pointDisplay" style="position: absolute;">
+                <span>Points</span><span id="points" style="margin-left: 8px;">0</span>
             </div>
         </div>
         
@@ -61,11 +71,14 @@
             const ctx = canvas.getContext("2d")
             canvas.getBoundingClientRect()
             let pointElement = document.getElementById("points")
+            let pointElementR = document.getElementById("pointsR")
             let restartGameMenu = document.getElementById("restartGameMenu")
             let menu = document.getElementById("menu")
             let restartGameButton = document.getElementById("restartGameButton")
             let startGameButton = document.getElementById("startGameButton")
-            let frameRate = 1000 / 5;
+            let gameSpeed = 5;
+            let frameRate = 1000 / gameSpeed;
+            let then = performance.now();
             let squareSize = { x: 20, y: 20 }
             let food = {x: 2, y: 4}
             let food1 = {x: 4, y: 7}
@@ -177,8 +190,17 @@
                 })
             }
 
+            function positionPointsDisplay() {
+                let displayPoints = document.getElementById("pointDisplay")
+                let rect = canvas.getBoundingClientRect()
+                displayPoints.style.left = `${rect.left + rect.width / 2}px`
+                displayPoints.style.top = `${rect.top - 40}px`
+                displayPoints.style.transform = 'translateX(-50%)'
+            }
+            window.addEventListener("resize", positionPointsDisplay)
             function setPoint(value) {
                 pointElement.innerText = value.toString();
+                pointElementR.innerText = value.toString()
             }
             
             function restartGame() {
@@ -207,7 +229,7 @@
                 restartGameMenu.hidden = true
                 setPoint(points)
                 resizeGame()
-                noChangeApple()
+                startEngine()
             }
             
             function resizeGame(){
@@ -220,8 +242,18 @@
                     canvasCenter()
                 }
 
+                positionPointsDisplay()
             }
+            function setSpeed(){
+                let gameSpeedElement = parseInt(document.getElementById("speed").value)
+                gameSpeed = gameSpeedElement
+                frameRate = 1000 / gameSpeed;
 
+                then = performance.now();
+                
+                console.log(gameSpeed)
+                console.log(frameRate)
+            }
             function randomIntFromInterval(min, max) { // min and max included 
                 return Math.floor(Math.random() * (max - min + 1) + min);
             }
@@ -282,7 +314,6 @@
             
             function gameLogic() {
                 movementChecker()
-                
                 if (move[0] === 0) {
                     speed.x = 1;
                     speed.y = 0;
@@ -352,9 +383,7 @@
                 
                 let foods = [food, food1, food2, food3];
                 let numberOfApples = parseInt(document.getElementById("Number of apples").value)
-                
                 let ate = foodHandeler(food)
-                console.log(numberOfApples)
                 for (let i = 0; i < numberOfApples; i++) {
                     let otherFood = foods.slice(0, i).concat(foods.slice(i + 1))
                     
@@ -366,7 +395,6 @@
                     snake.unshift(nextPos)
                     snake.pop()
                 }
-
             }
 
             function logic() {
@@ -555,10 +583,23 @@
             function engine() {
                 logic();
                 draw();
+                
             }
+            
+            function startEngine() {
+                function animate(now) {
+                    requestAnimationFrame(animate);
 
-            let stop = setInterval(requestAnimationFrame, frameRate, engine)
+                    const elapsed = now - then;
+                    if (elapsed > frameRate) {
+                        then = now - (elapsed % frameRate); // för exakt timing
+                        engine();
+                    }
+                }
 
+                requestAnimationFrame(animate);
+                //let stop = setInterval(requestAnimationFrame, frameRate, engine)
+            }
         </script>
 
     </body>
