@@ -111,36 +111,25 @@
                 [
                 ]
             let isAlive = false
-            function loadImage(src, name) {
-                const img = new Image();
-                img.src = src;
-                img.onload = () => {
-                    console.log(`✅ ${name} loaded`);
-                };
-                img.onerror = () => {
-                    console.error(`❌ Failed to load image: ${src}`);
-                };
-                return img;
-            }
-
             let spriteMapCorner = {
-                "down-left": loadImage("image/cornerdownleft.png", "down-left"),
-                "down-right": loadImage("image/cornerdownright.png", "down-right"),
-                "left-down": loadImage("image/cornerleftdown.png", "left-down"),
-                "left-upp": loadImage("image/cornerleftupp.png", "left-upp"),
-                "right-down": loadImage("image/cornerrightdown.png", "right-down"),
-                "right-upp": loadImage("image/cornerrightupp.png", "right-upp"),
-                "upp-left": loadImage("image/corneruppleft.png", "upp-left"),
-                "upp-right": loadImage("image/corneruppright.png", "upp-right")
-            };
-            spriteMapCorner["down-left"].src = "image/cornerdownleft.png";
-            spriteMapCorner["down-right"].src = "image/cornerdownright.png";
-            spriteMapCorner["left-down"].src = "image/cornerleftdown.png";
-            spriteMapCorner["left-upp"].src = "image/cornerleftupp.png";
-            spriteMapCorner["right-down"].src = "image/cornerrightdown.png";
-            spriteMapCorner["right-upp"].src = "image/cornerrightupp.png";
-            spriteMapCorner["upp-left"].src = "image/corneruppleft.png";
-            spriteMapCorner["upp-right"].src = "image/corneruppright.png";
+                "down-left": new Image(),
+                "down-right": new Image(),
+                "left-down": new Image(),
+                "left-upp": new Image(),
+                "right-down": new Image(),
+                "right-upp": new Image(),
+                "upp-left": new Image(),
+                "upp-right": new Image()
+
+            }
+            spriteMapCorner["down-left"].src = "img/corner/cornerdownleft.png";
+            spriteMapCorner["down-right"].src = "img/corner/cornerdownright.png";
+            spriteMapCorner["left-down"].src = "img/corner/cornerleftdown.png";
+            spriteMapCorner["left-upp"].src = "img/corner/cornerleftupp.png";
+            spriteMapCorner["right-down"].src = "img/corner/cornerrightdown.png";
+            spriteMapCorner["right-upp"].src = "img/corner/cornerrightupp.png";
+            spriteMapCorner["upp-left"].src = "img/corner/corneruppleft.png";
+            spriteMapCorner["upp-right"].src = "img/corner/corneruppright.png";
             
             function canvasCenter(){
                 const rect = canvas.getBoundingClientRect()
