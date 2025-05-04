@@ -16,12 +16,15 @@
             
             <div  id="menu" hidden style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);  flex-direction: column; gap: 20px; justify-content: center; align-items: center;" >
                 <div>
-                    <span>Points</span><span id="pointsG" style="margin-left: 8px;">0</span>
+                    <span>Total Points</span><span id="pointsT" style="margin-left: 4px;">0</span>
+                    <span>Points</span><span id="pointsG" style="margin-left: 4px;">0</span>
+                </div>
+                <div>
                     <button  id="startGameButton" onclick="restartGame();">Start game</button>
                 </div>
                 <div>
                     <label>apple amount:</label>
-                    <select onchange="appleAmount()" id="Number of apples" name="Number of apples" value="1">
+                    <select  id="Number of apples" name="Number of apples" value="1">
                         <option value=1>1 apple</option>
                         <option value=2>2 apples</option>
                         <option value=3>3 apples</option>
@@ -48,10 +51,17 @@
                         <option value="10">Impossible</option>
                     </select>
                 </div>
+                <div>
+                    <label>Skin:</label>
+                    <select name="skin" id="skin">
+                        <option value="1">DevSkin</option>
+                    </select>
+                </div>
             </div>
             <div  id="restartGameMenu" hidden style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);  flex-direction: column; gap: 20px; justify-content: center; align-items: center;" >
                 <div>
                     <span>Points</span><span id="pointsR" style="margin-left: 10px; margin-top: 20px">0</span>
+                    <span>Total Points</span><span id="pointsTG" style="margin-left: 8px;">0</span>
                     <button  id="restartGameButton" onclick="restartGame();">Start game</button>
                     <button  id="openMenuButton" onclick="openMenu();">Menu</button>
                 </div>
@@ -72,20 +82,24 @@
             canvas.getBoundingClientRect()
             let pointElement = document.getElementById("points")
             let pointElementR = document.getElementById("pointsR")
+            let pointElementT = document.getElementById("pointsT")
+            let pointElementTD = document.getElementById("pointsTG")
             let restartGameMenu = document.getElementById("restartGameMenu")
             let menu = document.getElementById("menu")
             let restartGameButton = document.getElementById("restartGameButton")
             let startGameButton = document.getElementById("startGameButton")
+            let isMenuOpen = true
             let gameSpeed = 5;
             let frameRate = 1000 / gameSpeed;
             let then = performance.now();
             let squareSize = { x: 20, y: 20 }
-            let food = {x: 2, y: 4}
-            let food1 = {x: 4, y: 7}
-            let food2 = {x: 8, y: 4}
-            let food3 = {x: 9, y: 3}
+            let food = {x: 8, y: 4}
+            let food1 = {x: 12, y: 4}
+            let food2 = {x: 14, y: 4}
+            let food3 = {x: 6, y: 4}
             let isFirstRun = true
             let points = 0
+            let pointsT = 0
             let snake =
                 [
                     {x: 10, y:10},
@@ -97,7 +111,36 @@
                 [
                 ]
             let isAlive = false
-            
+            function loadImage(src, name) {
+                const img = new Image();
+                img.src = src;
+                img.onload = () => {
+                    console.log(`✅ ${name} loaded`);
+                };
+                img.onerror = () => {
+                    console.error(`❌ Failed to load image: ${src}`);
+                };
+                return img;
+            }
+
+            let spriteMapCorner = {
+                "down-left": loadImage("image/cornerdownleft.png", "down-left"),
+                "down-right": loadImage("image/cornerdownright.png", "down-right"),
+                "left-down": loadImage("image/cornerleftdown.png", "left-down"),
+                "left-upp": loadImage("image/cornerleftupp.png", "left-upp"),
+                "right-down": loadImage("image/cornerrightdown.png", "right-down"),
+                "right-upp": loadImage("image/cornerrightupp.png", "right-upp"),
+                "upp-left": loadImage("image/corneruppleft.png", "upp-left"),
+                "upp-right": loadImage("image/corneruppright.png", "upp-right")
+            };
+            spriteMapCorner["down-left"].src = "image/cornerdownleft.png";
+            spriteMapCorner["down-right"].src = "image/cornerdownright.png";
+            spriteMapCorner["left-down"].src = "image/cornerleftdown.png";
+            spriteMapCorner["left-upp"].src = "image/cornerleftupp.png";
+            spriteMapCorner["right-down"].src = "image/cornerrightdown.png";
+            spriteMapCorner["right-upp"].src = "image/cornerrightupp.png";
+            spriteMapCorner["upp-left"].src = "image/corneruppleft.png";
+            spriteMapCorner["upp-right"].src = "image/corneruppright.png";
             
             function canvasCenter(){
                 const rect = canvas.getBoundingClientRect()
@@ -119,12 +162,23 @@
             let menuButtonX = (canvas.width - ButtonWidth) / 2
             let menuButtonY = (canvas.height - ButtonHeight) / 2 + ButtonHeight
             openMenu()
-
+            draw()
 
 
             function openMenu(){
+                isMenuOpen = true
                 restartGameMenu.hidden = true
                 menu.hidden = false
+                let canvasx = canvas.width
+                let canvasy = canvas.height
+                let cx = canvasx /= squareSize.x
+                let cy = canvasy /= squareSize.y
+                let cx2 = cx/2
+                let cy2 = cy/2
+                snake =
+                    [{x: cx2, y:cy2},
+                        {x: cx2, y:cy2 + 1},
+                        {x: cx2, y:cy2 + 2}]
             }
             function openRestartGameMenu(){
                 restartGameMenu.hidden = false
@@ -198,9 +252,11 @@
                 displayPoints.style.transform = 'translateX(-50%)'
             }
             window.addEventListener("resize", positionPointsDisplay)
-            function setPoint(value) {
-                pointElement.innerText = value.toString();
+            function setPoint(value, valueT) {
+                pointElement.innerText = value.toString()
                 pointElementR.innerText = value.toString()
+                pointElementT.innerText = valueT.toString()
+                pointElementTD.innerText = valueT.toString()
             }
             
             function restartGame() {
@@ -211,7 +267,8 @@
                 let cy = canvasy /= squareSize.y
                 let cx2 = cx/2
                 let cy2 = cy/2
-                food = {x: 2, y: 4}
+                let appleAmount = parseInt(document.getElementById("Number of apples").value)
+                foodLoc(appleAmount)
                 points = 0
                 snake = 
                     [{x: cx2, y:cy2},
@@ -225,11 +282,36 @@
                 isAlive = true
                 isFirstRun = false
                 restartGameButton.innerText  = "Restart Game"
+                isMenuOpen = false
                 menu.hidden = true
                 restartGameMenu.hidden = true
-                setPoint(points)
+                setPoint(points, pointsT)
                 resizeGame()
                 startEngine()
+            }
+            function foodLoc(foodNumber){
+                let canvasx = canvas.width
+                let canvasy = canvas.height
+                let cx = canvasx /= squareSize.x
+                let cy = canvasy /= squareSize.y
+                let cx2 = cx/2
+                let cy2 = cy/2
+                if (foodNumber === 1){
+                    food = {x: cx2, y:cy2 - 6}
+                }else if (foodNumber === 2){
+                    food = {x: cx2 + 2, y:cy2 - 6}
+                    food1 = {x: cx2 - 2, y:cy2 - 6}
+                }else if (foodNumber === 3) {
+                    food = {x: cx2, y:cy2 - 6}
+                    food1 = {x: cx2 + 3, y:cy2 - 6}
+                    food2 = {x: cx2 - 3, y:cy2 - 6}
+                }else if (foodNumber === 4){
+                    food = {x: cx2 + 2, y:cy2 - 6}
+                    food1 = {x: cx2 - 2, y:cy2 - 6}
+                    food2 = {x: cx2 + 5, y:cy2 - 6}
+                    food3 = {x: cx2 - 5, y:cy2 - 6}
+                }
+                    
             }
             
             function resizeGame(){
@@ -240,6 +322,17 @@
                     canvas.width = squareSize.x * size
                     canvas.height = squareSize.y * size
                     canvasCenter()
+                    let canvasx = canvas.width
+                    let canvasy = canvas.height
+                    let cx = canvasx /= squareSize.x
+                    let cy = canvasy /= squareSize.y
+                    let cx2 = cx/2
+                    let cy2 = cy/2
+                    snake =
+                        [{x: cx2, y:cy2},
+                            {x: cx2, y:cy2 + 1},
+                            {x: cx2, y:cy2 + 2}]
+                    draw()
                 }
 
                 positionPointsDisplay()
@@ -363,10 +456,10 @@
                     if (food.x === nextPos.x && food.y === nextPos.y) {
                         snake.unshift(nextPos);
                         points += 1
-                        setPoint(points)
+                        pointsT += 1
+                        setPoint(points, pointsT)
 
-                        food.x = randomIntFromInterval(0, canvas.width / squareSize.x)
-                        food.y = randomIntFromInterval(0, canvas.height / squareSize.y)
+
                         do {
                             food.x = randomIntFromInterval(0, cx - 1)
                             food.y = randomIntFromInterval(0, cy - 1)
@@ -407,170 +500,661 @@
 
             function draw() {
                 if (isAlive) {
+                    
+                    //if (blueskin ==== selected)
+                    
+                    pixel()
+                    //blueSkin()
+                    
+                    ////ctx.createPattern()
+                    apples()
 
-                    ctx.clearRect(0, 0, canvas.width, canvas.height)
-                    ctx.fillStyle = "blue"
-                    snake.forEach((part) => {
+                }else if (isMenuOpen === true){
+                    blueSkin()
+                }
+                
+            }
+            
+            function blueSkin(){
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                ctx.fillStyle = "blue"
+                snake.forEach((part) => {
+                    ctx.fillRect(
+                        part.x * squareSize.x,
+                        part.y * squareSize.y,
+                        squareSize.x,
+                        squareSize.y)
+                });
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                ctx.fillStyle = "blue"
+                snake.forEach((part) => {
+                    ctx.fillRect(
+                        part.x * squareSize.x,
+                        part.y * squareSize.y,
+                        squareSize.x,
+                        squareSize.y)
+                });
+                for (let i = 0; i < snake.length; i++) {
+
+                }
+                if (speed.y === 1 || speed.x === 1 || speed.x === -1) {
+                    ctx.fillStyle = "black"
+                    ctx.fillRect(
+                        snake[0].x * squareSize.x + 0.1 * squareSize.x,
+                        snake[0].y * squareSize.y + 0.2 * squareSize.y,
+                        squareSize.x / 5,
+                        squareSize.y / 5
+                    )
+                    ctx.fillRect(
+                        snake[0].x * squareSize.x + 0.7 * squareSize.x,
+                        snake[0].y * squareSize.y + 0.2 * squareSize.y,
+                        squareSize.x / 5,
+                        squareSize.y / 5
+                    )
+                    ctx.fillStyle = "red"
+                    ctx.fillRect(
+                        snake[0].x * squareSize.x + 0.25 * squareSize.x,
+                        snake[0].y * squareSize.y + 0.6 * squareSize.y,
+                        squareSize.x / 2,
+                        squareSize.y / 5
+                    )
+                } else {
+                    ctx.fillStyle = "red"
+                    ctx.fillRect(
+                        snake[0].x * squareSize.x + 0.25 * squareSize.x,
+                        snake[0].y * squareSize.y + 0.1 * squareSize.y,
+                        squareSize.x / 2,
+                        squareSize.y / 5
+                    )
+                    ctx.fillStyle = "black"
+                    ctx.fillRect(
+                        snake[0].x * squareSize.x + 0.1 * squareSize.x,
+                        snake[0].y * squareSize.y + 0.4 * squareSize.y,
+                        squareSize.x / 5,
+                        squareSize.y / 5
+                    )
+                    ctx.fillRect(
+                        snake[0].x * squareSize.x + 0.7 * squareSize.x,
+                        snake[0].y * squareSize.y + 0.4 * squareSize.y,
+                        squareSize.x / 5,
+                        squareSize.y / 5
+                    )
+                }
+                if (speed.y === -1) {
+                    ctx.fillStyle = "black"
+                    ctx.fillRect(
+                        snake[0].x * squareSize.x,
+                        snake[0].y * squareSize.y,
+                        squareSize.x,
+                        squareSize.y / 30
+                    )
+                } else if (speed.y === 1) {
+                    ctx.fillStyle = "black"
+                    ctx.fillRect(
+                        snake[0].x * squareSize.x,
+                        snake[0].y * squareSize.y + squareSize.y,
+                        squareSize.x,
+                        squareSize.y / 20
+                    )
+                }
+                if (snake[snake.length - 1].y - 1 === snake[snake.length - 2].y) {
+                    ctx.fillStyle = "black"
+                    ctx.fillRect(
+                        snake[snake.length - 1].x * squareSize.x,
+                        snake[snake.length - 1].y * squareSize.y + squareSize.y,
+                        squareSize.x,
+                        squareSize.y / 20
+                    )
+                }
+
+                if (snake[snake.length - 1].y + 1 === snake[snake.length - 2].y) {
+                    ctx.fillStyle = "black"
+                    ctx.fillRect(
+                        snake[snake.length - 1].x * squareSize.x,
+                        snake[snake.length - 1].y * squareSize.y,
+                        squareSize.x,
+                        squareSize.y / 20
+                    )
+                }
+                if (speed.x === 1) {
+                    ctx.fillStyle = "black"
+                    ctx.fillRect(
+                        snake[0].x * squareSize.x + squareSize.x,
+                        snake[0].y * squareSize.y,
+                        squareSize.x / 20,
+                        squareSize.y
+                    )
+                }
+                if (speed.x === -1) {
+                    ctx.fillStyle = "black"
+                    ctx.fillRect(
+                        snake[0].x * squareSize.x,
+                        snake[0].y * squareSize.y,
+                        squareSize.x / 20,
+                        squareSize.y
+                    )
+                }
+                ctx.fillStyle = "black"
+
+                if (snake[snake.length - 1].x - 1 === snake[snake.length - 2].x) {
+                    ctx.fillRect(
+                        snake[snake.length - 1].x * squareSize.x + squareSize.x,
+                        snake[snake.length - 1].y * squareSize.y,
+                        squareSize.x / 20,
+                        squareSize.y
+                    )
+                }
+                if (snake[snake.length - 1].x + 1 === snake[snake.length - 2].x) {
+                    ctx.fillRect(
+                        snake[snake.length - 1].x * squareSize.x,
+                        snake[snake.length - 1].y * squareSize.y,
+                        squareSize.x / 20,
+                        squareSize.y
+                    )
+                }
+
+                snake.forEach((part, index) => {
+                    //console.log("Index:", index);
+                    let next = snake[index + 1] // är parten nedan för
+                    let before = snake[index - 1] // är parten efter
+                
+                    if (index < snake.length - 1 || index > 0) { // kollar så inte är rumpan
+                        if (before && next) {
+                            if (part.y === before.y && part.y !== next.y || part.x === before.x && part.x !== next.x) { // corner
+
+                                let fromX = part.x - before.x;
+                                let fromY = part.y - before.y;
+                                let toX = next.x - part.x;
+                                let toY = next.y - part.y;
+
+                                ctx.fillStyle = "black";
+                                
+                                // ner  höger
+                                if (fromX === -1 && toY === -1) {
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y,
+                                        squareSize.x / 10,
+                                        squareSize.y)
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y + squareSize.y * 0.9,
+                                        squareSize.x ,
+                                        squareSize.y / 10)
+                                }
+
+                                // ner vänster
+                                else if (fromX === 1 && toY === -1) {
+                                    ctx.fillRect(
+                                        part.x * squareSize.x + squareSize.y * 0.9,
+                                        part.y * squareSize.y,
+                                        squareSize.x / 10,
+                                        squareSize.y )
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y + squareSize.y * 0.9,
+                                        squareSize.x ,
+                                        squareSize.y / 10)
+                                }
+
+                                // upp  höger
+                                else if (fromX === -1 && toY === 1) {
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y,
+                                        squareSize.x / 10,
+                                        squareSize.y )
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y,
+                                        squareSize.x ,
+                                        squareSize.y / 10)
+                                }
+
+                                // upp  vänster
+                                else if (fromX === 1 && toY === 1) {
+                                    ctx.fillRect(
+                                        part.x * squareSize.x + squareSize.y * 0.9,
+                                        part.y * squareSize.y,
+                                        squareSize.x / 10,
+                                        squareSize.y )
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y,
+                                        squareSize.x ,
+                                        squareSize.y / 10)
+                                }
+
+                                // höger  ner
+                                else if (fromY === -1 && toX === -1) {
+                                    ctx.fillRect(
+                                        part.x * squareSize.x + squareSize.y * 0.9,
+                                        part.y * squareSize.y,
+                                        squareSize.x / 10,
+                                        squareSize.y )
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y,
+                                        squareSize.x ,
+                                        squareSize.y / 10)
+                                }
+
+                                // vänster  ner
+                                else if (fromY === -1 && toX === 1) {
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y,
+                                        squareSize.x / 10,
+                                        squareSize.y )
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y,
+                                        squareSize.x ,
+                                        squareSize.y / 10)
+                                }
+
+                                // höger  upp
+                                else if (fromY === 1 && toX === -1) {
+                                    ctx.fillRect(
+                                        part.x * squareSize.x + squareSize.y * 0.9,
+                                        part.y * squareSize.y,
+                                        squareSize.x / 10,
+                                        squareSize.y )
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y + squareSize.y * 0.9,
+                                        squareSize.x ,
+                                        squareSize.y / 10)
+                                }
+
+                                // vänster  upp
+                                else if (fromY === 1 && toX === 1) {
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y,
+                                        squareSize.x / 10,
+                                        squareSize.y )
+                                    ctx.fillRect(
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y + squareSize.y * 0.9,
+                                        squareSize.x ,
+                                        squareSize.y / 10)
+                                }
+                            
+                                
+                                
+                            } else if (part.y - next.y === -1) { // ifall partens y - nästa parts y = -1y = upp
+                                ctx.fillStyle = "black"
+                                ctx.fillRect(
+                                    part.x * squareSize.x,
+                                    part.y * squareSize.y,
+                                    squareSize.x / 10,
+                                    squareSize.y
+                                )
+                                ctx.fillStyle = "black"
+                                ctx.fillRect(
+                                    part.x * squareSize.x + (squareSize.x * 0.9),
+                                    part.y * squareSize.y,
+                                    squareSize.x / 10,
+                                    squareSize.y
+                                )
+
+                            } else if (part.y - next.y === 1) {
+                                ctx.fillStyle = "black"
+                                ctx.fillRect(
+                                    part.x * squareSize.x,
+                                    part.y * squareSize.y,
+                                    squareSize.x / 10,
+                                    squareSize.y
+                                )
+                                ctx.fillStyle = "black"
+                                ctx.fillRect(
+                                    part.x * squareSize.x + (squareSize.x * 0.9),
+                                    part.y * squareSize.y,
+                                    squareSize.x / 10,
+                                    squareSize.y
+                                )
+                            } else if (part.x - next.x === 1) {
+                                ctx.fillStyle = "black"
+                                ctx.fillRect(
+                                    part.x * squareSize.x,
+                                    part.y * squareSize.y,
+                                    squareSize.x,
+                                    squareSize.y / 10
+                                )
+                                ctx.fillStyle = "black"
+                                ctx.fillRect(
+                                    part.x * squareSize.x,
+                                    part.y * squareSize.y + (squareSize.y * 0.9),
+                                    squareSize.x,
+                                    squareSize.y / 10
+                                )
+
+                            } else if (part.x - next.x === -1) {
+                                ctx.fillStyle = "black"
+                                ctx.fillRect(
+                                    part.x * squareSize.x,
+                                    part.y * squareSize.y,
+                                    squareSize.x,
+                                    squareSize.y / 10
+                                )
+                                ctx.fillStyle = "black"
+                                ctx.fillRect(
+                                    part.x * squareSize.x,
+                                    part.y * squareSize.y + (squareSize.y * 0.9),
+                                    squareSize.x,
+                                    squareSize.y / 10
+                                )
+
+                            }
+                        }
+                    }
+                    if(index >= snake.length - 1) { // back
+                        if (before.y - part.y === -1){
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                part.x * squareSize.x,
+                                part.y * squareSize.y,
+                                squareSize.x / 10,
+                                squareSize.y
+                            )
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                part.x * squareSize.x + (squareSize.x * 0.9),
+                                part.y * squareSize.y,
+                                squareSize.x / 10,
+                                squareSize.y
+                            )
+                        }else if (before.y - part.y === 1){
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                part.x * squareSize.x,
+                                part.y * squareSize.y,
+                                squareSize.x / 10,
+                                squareSize.y
+                            )
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                part.x * squareSize.x + (squareSize.x * 0.9),
+                                part.y * squareSize.y,
+                                squareSize.x / 10,
+                                squareSize.y
+                            )
+                        }else if (before.x - part.x === 1){
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                part.x * squareSize.x,
+                                part.y * squareSize.y,
+                                squareSize.x,
+                                squareSize.y / 10
+                            )
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                part.x * squareSize.x,
+                                part.y * squareSize.y + (squareSize.y * 0.9),
+                                squareSize.x,
+                                squareSize.y / 10
+                            )
+                        }else if (before.x - part.x === -1){
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                part.x * squareSize.x,
+                                part.y * squareSize.y,
+                                squareSize.x,
+                                squareSize.y / 10
+                            )
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                part.x * squareSize.x,
+                                part.y * squareSize.y + (squareSize.y * 0.9),
+                                squareSize.x,
+                                squareSize.y / 10
+                            )
+                        }
+                    }
+                    if (index <= 0) { // head
+                        if (speed.y === -1) { 
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                snake[0].x * squareSize.x,
+                                snake[0].y * squareSize.y,
+                                squareSize.x / 15,
+                                squareSize.y
+                            )
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                snake[0].x * squareSize.x + (squareSize.x * 0.9),
+                                snake[0].y * squareSize.y,
+                                squareSize.x / 15,
+                                squareSize.y
+                            )
+
+                        } else if (speed.y === 1) {
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                snake[0].x * squareSize.x,
+                                snake[0].y * squareSize.y,
+                                squareSize.x / 15,
+                                squareSize.y
+                            )
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                snake[0].x * squareSize.x + (squareSize.x * 0.9),
+                                snake[0].y * squareSize.y,
+                                squareSize.x / 15,
+                                squareSize.y
+                            )
+                        } else if (speed.x === 1) {
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                snake[0].x * squareSize.x,
+                                snake[0].y * squareSize.y,
+                                squareSize.x,
+                                squareSize.y / 15
+                            )
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                snake[0].x * squareSize.x,
+                                snake[0].y * squareSize.y + (squareSize.y * 0.9),
+                                squareSize.x,
+                                squareSize.y / 15
+                            )
+
+                        } else if (speed.x === -1) {
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                snake[0].x * squareSize.x,
+                                snake[0].y * squareSize.y,
+                                squareSize.x,
+                                squareSize.y / 15
+                            )
+                            ctx.fillStyle = "black"
+                            ctx.fillRect(
+                                snake[0].x * squareSize.x,
+                                snake[0].y * squareSize.y + (squareSize.y * 0.9),
+                                squareSize.x,
+                                squareSize.y / 15
+                            )
+
+                        }
+                        
+                    }
+                    
+                
+                })
+
+
+            }
+            function pixel(){
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                snake.forEach((part, index) => {
+                    let next = snake[index + 1] // är parten nedan för
+                    let before = snake[index - 1] // är parten efter
+
+                    if (index < snake.length - 1 || index > 0) { // kollar så inte är rumpan
+                        if (before && next) {
+                            if (part.y === before.y && part.y !== next.y || part.x === before.x && part.x !== next.x) { // corner
+                                let fromX = part.x - before.x;
+                                let fromY = part.y - before.y;
+                                let toX = next.x - part.x;
+                                let toY = next.y - part.y;
+
+                                ctx.fillStyle = "black";
+                                
+
+                                function drawCorner(image){
+                                    ctx.drawImage(
+                                        image,
+                                        part.x * squareSize.x,
+                                        part.y * squareSize.y,
+                                        squareSize.x,
+                                        squareSize.y
+                                    );
+                                }
+                                // ner  höger
+                                if (fromX === -1 && toY === -1) {
+                                    drawCorner(spriteMapCorner["down-right"])
+                                }
+
+                                // ner vänster
+                                else if (fromX === 1 && toY === -1) {
+                                    drawCorner(spriteMapCorner["down-left"])
+                                }
+
+                                // upp  höger
+                                else if (fromX === -1 && toY === 1) {
+                                    drawCorner(spriteMapCorner["upp-right"])
+                                }
+
+                                // upp  vänster
+                                else if (fromX === 1 && toY === 1) {
+                                    drawCorner(spriteMapCorner["upp-left"])
+                                }
+
+                                // höger  ner
+                                else if (fromY === -1 && toX === -1) {
+                                    drawCorner(spriteMapCorner["right-down"])
+                                }
+
+                                // vänster  ner
+                                else if (fromY === -1 && toX === 1) {
+                                    drawCorner(spriteMapCorner["left-down"])
+                                }
+
+                                // höger  upp
+                                else if (fromY === 1 && toX === -1) {
+                                    drawCorner(spriteMapCorner["right-upp"])
+                                }
+
+                                // vänster  upp
+                                else if (fromY === 1 && toX === 1) {
+                                    drawCorner(spriteMapCorner["left-upp"])
+                                }
+
+
+
+
+                            } else if (part.y - next.y === -1) { // ifall partens y - nästa parts y = -1y = upp
+                                ctx.fillRect(
+                                    part.x * squareSize.x,
+                                    part.y * squareSize.y,
+                                    squareSize.x,
+                                    squareSize.y)
+
+
+                            } else if (part.y - next.y === 1) {
+
+                                ctx.fillRect(
+                                    part.x * squareSize.x,
+                                    part.y * squareSize.y,
+                                    squareSize.x,
+                                    squareSize.y)
+                            } else if (part.x - next.x === 1) {
+
+                                ctx.fillRect(
+                                    part.x * squareSize.x,
+                                    part.y * squareSize.y,
+                                    squareSize.x,
+                                    squareSize.y)
+                            } else if (part.x - next.x === -1) {
+
+                                ctx.fillRect(
+                                    part.x * squareSize.x,
+                                    part.y * squareSize.y,
+                                    squareSize.x,
+                                    squareSize.y)
+
+                            }
+                        }
+                    }
+                    if(index >= snake.length - 1) { // back
                         ctx.fillRect(
                             part.x * squareSize.x,
                             part.y * squareSize.y,
                             squareSize.x,
                             squareSize.y)
-                    });
-                    for (let i = 0; i < snake.length; i++) {
+                    }
+                    if (index <= 0) { // head
+                        if (speed.y === -1) {
+                            ctx.fillRect(
+                                part.x * squareSize.x,
+                                part.y * squareSize.y,
+                                squareSize.x,
+                                squareSize.y)
+                        } else if (speed.y === 1) {
+                            ctx.fillRect(
+                                part.x * squareSize.x,
+                                part.y * squareSize.y,
+                                squareSize.x,
+                                squareSize.y)
+                        } else if (speed.x === 1) {
+                            ctx.fillRect(
+                                part.x * squareSize.x,
+                                part.y * squareSize.y,
+                                squareSize.x,
+                                squareSize.y)
+                        } else if (speed.x === -1) {
+                            ctx.fillRect(
+                                part.x * squareSize.x,
+                                part.y * squareSize.y,
+                                squareSize.x,
+                                squareSize.y)
+                        }
 
-                    }
-                    if (speed.y === 1 || speed.x === 1 || speed.x === -1) {
-                        ctx.fillStyle = "black"
-                        ctx.fillRect(
-                            snake[0].x * squareSize.x + 0.1 * squareSize.x,
-                            snake[0].y * squareSize.y + 0.2 * squareSize.y,
-                            squareSize.x / 5,
-                            squareSize.y / 5
-                        )
-                        ctx.fillRect(
-                            snake[0].x * squareSize.x + 0.7 * squareSize.x,
-                            snake[0].y * squareSize.y + 0.2 * squareSize.y,
-                            squareSize.x / 5,
-                            squareSize.y / 5
-                        )
-                        ctx.fillStyle = "red"
-                        ctx.fillRect(
-                            snake[0].x * squareSize.x + 0.25 * squareSize.x,
-                            snake[0].y * squareSize.y + 0.6 * squareSize.y,
-                            squareSize.x / 2,
-                            squareSize.y / 5
-                        )
-                    } else {
-                        ctx.fillStyle = "red"
-                        ctx.fillRect(
-                            snake[0].x * squareSize.x + 0.25 * squareSize.x,
-                            snake[0].y * squareSize.y + 0.1 * squareSize.y,
-                            squareSize.x / 2,
-                            squareSize.y / 5
-                        )
-                        ctx.fillStyle = "black"
-                        ctx.fillRect(
-                            snake[0].x * squareSize.x + 0.1 * squareSize.x,
-                            snake[0].y * squareSize.y + 0.4 * squareSize.y,
-                            squareSize.x / 5,
-                            squareSize.y / 5
-                        )
-                        ctx.fillRect(
-                            snake[0].x * squareSize.x + 0.7 * squareSize.x,
-                            snake[0].y * squareSize.y + 0.4 * squareSize.y,
-                            squareSize.x / 5,
-                            squareSize.y / 5
-                        )
-                    }
-                    if (speed.y === -1) {
-                        ctx.fillStyle = "black"
-                        ctx.fillRect(
-                            snake[0].x * squareSize.x,
-                            snake[0].y * squareSize.y,
-                            squareSize.x,
-                            squareSize.y / 30
-                        )
-                    } else if (speed.y === 1) {
-                        ctx.fillStyle = "black"
-                        ctx.fillRect(
-                            snake[0].x * squareSize.x,
-                            snake[0].y * squareSize.y + squareSize.y,
-                            squareSize.x,
-                            squareSize.y / 20
-                        )
-                    }
-                    if (snake[snake.length - 1].y - 1 === snake[snake.length - 2].y) {
-                        ctx.fillStyle = "black"
-                        ctx.fillRect(
-                            snake[snake.length - 1].x * squareSize.x,
-                            snake[snake.length - 1].y * squareSize.y + squareSize.y,
-                            squareSize.x,
-                            squareSize.y / 20
-                        )
-                    }
-
-                    if (snake[snake.length - 1].y + 1 === snake[snake.length - 2].y) {
-                        ctx.fillStyle = "black"
-                        ctx.fillRect(
-                            snake[snake.length - 1].x * squareSize.x,
-                            snake[snake.length - 1].y * squareSize.y,
-                            squareSize.x,
-                            squareSize.y / 20
-                        )
-                    }
-                    if (speed.x === 1) {
-                        ctx.fillStyle = "black"
-                        ctx.fillRect(
-                            snake[0].x * squareSize.x + squareSize.x,
-                            snake[0].y * squareSize.y,
-                            squareSize.x / 20,
-                            squareSize.y
-                        )
-                    }
-                    if (speed.x === -1) {
-                        ctx.fillStyle = "black"
-                        ctx.fillRect(
-                            snake[0].x * squareSize.x,
-                            snake[0].y * squareSize.y,
-                            squareSize.x / 20,
-                            squareSize.y
-                        )
-                    }
-                    ctx.fillStyle = "black"
-
-                    if (snake[snake.length - 1].x - 1 === snake[snake.length - 2].x) {
-                        ctx.fillRect(
-                            snake[snake.length - 1].x * squareSize.x + squareSize.x,
-                            snake[snake.length - 1].y * squareSize.y,
-                            squareSize.x / 20,
-                            squareSize.y
-                        )
-                    }
-                    if (snake[snake.length - 1].x + 1 === snake[snake.length - 2].x) {
-                        ctx.fillRect(
-                            snake[snake.length - 1].x * squareSize.x,
-                            snake[snake.length - 1].y * squareSize.y,
-                            squareSize.x / 20,
-                            squareSize.y
-                        )
                     }
 
 
-                    ////ctx.createPattern()
+                })
+            }
+                function apples(){
+                let numberOfApples = document.getElementById("Number of apples").value
+                if (numberOfApples === "1") {
+                    drawApples(food)
+                } else if (numberOfApples === "2") {
+                    drawApples(food)
+                    drawApples(food1)
+                } else if (numberOfApples === "3") {
+                    drawApples(food)
+                    drawApples(food1)
+                    drawApples(food2)
+                } else if (numberOfApples === "4") {
+                    drawApples(food)
+                    drawApples(food1)
+                    drawApples(food2)
+                    drawApples(food3)
+                }
 
-                    let numberOfApples = document.getElementById("Number of apples").value
-                    if (numberOfApples === "1") {
-                        drawApples(food)
-                    } else if (numberOfApples === "2") {
-                        drawApples(food)
-                        drawApples(food1)
-                    } else if (numberOfApples === "3") {
-                        drawApples(food)
-                        drawApples(food1)
-                        drawApples(food2)
-                    } else if (numberOfApples === "4") {
-                        drawApples(food)
-                        drawApples(food1)
-                        drawApples(food2)
-                        drawApples(food3)
-                    }
-
-                    function drawApples(food) {
-                        ctx.fillStyle = "red"
-                        ctx.fillRect(
-                            food.x * squareSize.x,
-                            food.y * squareSize.y,
-                            squareSize.x,
-                            squareSize.y
-                        );
-                    }
-
+                function drawApples(food) {
+                    ctx.fillStyle = "red"
+                    ctx.fillRect(
+                        food.x * squareSize.x,
+                        food.y * squareSize.y,
+                        squareSize.x,
+                        squareSize.y
+                    );
                 }
             }
-            
-            
-            
             function drawBackground(){
                 var backgroundEasy = new Image()
                 backgroundEasy.src="./img/snakeBackgroundEasy.png"
@@ -592,13 +1176,12 @@
 
                     const elapsed = now - then;
                     if (elapsed > frameRate) {
-                        then = now - (elapsed % frameRate); // för exakt timing
+                        then = now - (elapsed % frameRate);
                         engine();
                     }
                 }
 
                 requestAnimationFrame(animate);
-                //let stop = setInterval(requestAnimationFrame, frameRate, engine)
             }
         </script>
 
