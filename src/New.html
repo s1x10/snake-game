@@ -53,8 +53,9 @@
                 </div>
                 <div>
                     <label>Skin:</label>
-                    <select name="skin" id="skin">
+                    <select onchange="draw()" name="skin" id="skin">
                         <option value="1">DevSkin</option>
+                        <option value="2">Dark Snake</option>
                     </select>
                 </div>
             </div>
@@ -130,6 +131,37 @@
             spriteMapCorner["right-upp"].src = "img/corner/cornerrightupp.png";
             spriteMapCorner["upp-left"].src = "img/corner/corneruppleft.png";
             spriteMapCorner["upp-right"].src = "img/corner/corneruppright.png";
+            let spriteMapBody = {
+                "left": new Image(),
+                "right": new Image(),
+                "upp": new Image(),
+                "down": new Image()
+            }
+            spriteMapBody["left"].src = "img/body/bodyleft.png"
+            spriteMapBody["right"].src = "img/body/bodyright.png"
+            spriteMapBody["upp"].src = "img/body/bodyupp.png"
+            spriteMapBody["down"].src = "img/body/bodydown.png"
+            let spiteMapHead = {
+                "left": new Image(),
+                "right": new Image(),
+                "upp": new Image(),
+                "down": new Image()
+            }
+            spiteMapHead["left"].src = "img/head/headleft.png"
+            spiteMapHead["right"].src = "img/head/headright.png"
+            spiteMapHead["upp"].src = "img/head/headupp.png"
+            spiteMapHead["down"].src = "img/head/headdown.png"
+            
+            let spriteMapButt = {
+                "left": new Image(),
+                "right": new Image(),
+                "upp": new Image(),
+                "down": new Image()
+            }
+            spriteMapButt["left"].src = "img/butt/buttleft.png"
+            spriteMapButt["right"].src = "img/butt/buttright.png"
+            spriteMapButt["upp"].src = "img/butt/buttupp.png"
+            spriteMapButt["down"].src = "img/butt/buttdown.png"
             
             function canvasCenter(){
                 const rect = canvas.getBoundingClientRect()
@@ -489,17 +521,19 @@
 
             function draw() {
                 if (isAlive) {
-                    
-                    //if (blueskin ==== selected)
-                    
-                    pixel()
-                    //blueSkin()
-                    
+                    if (parseInt(document.getElementById("skin").value) === 1) {
+                        blueSkin()
+                    }else if(parseInt(document.getElementById("skin").value) === 2) {
+                        pixel()
+                    }
                     ////ctx.createPattern()
                     apples()
-
                 }else if (isMenuOpen === true){
-                    blueSkin()
+                    if (parseInt(document.getElementById("skin").value) === 1) {
+                        blueSkin()
+                    }else if(parseInt(document.getElementById("skin").value) === 2) {
+                        pixel()
+                    }
                 }
                 
             }
@@ -980,7 +1014,15 @@
                 snake.forEach((part, index) => {
                     let next = snake[index + 1] // är parten nedan för
                     let before = snake[index - 1] // är parten efter
-
+                    
+                    function drawImages(image){
+                        ctx.drawImage(
+                            image,
+                            part.x * squareSize.x,
+                            part.y * squareSize.y,
+                            squareSize.x,
+                            squareSize.y)
+                    }
                     if (index < snake.length - 1 || index > 0) { // kollar så inte är rumpan
                         if (before && next) {
                             if (part.y === before.y && part.y !== next.y || part.x === before.x && part.x !== next.x) { // corner
@@ -990,125 +1032,83 @@
                                 let toY = next.y - part.y;
 
                                 ctx.fillStyle = "black";
-                                
 
-                                function drawCorner(image){
-                                    ctx.drawImage(
-                                        image,
-                                        part.x * squareSize.x,
-                                        part.y * squareSize.y,
-                                        squareSize.x,
-                                        squareSize.y
-                                    );
-                                }
+                                
                                 // ner  höger
                                 if (fromX === -1 && toY === -1) {
-                                    drawCorner(spriteMapCorner["down-right"])
+                                    drawImages(spriteMapCorner["down-right"])
                                 }
 
                                 // ner vänster
                                 else if (fromX === 1 && toY === -1) {
-                                    drawCorner(spriteMapCorner["down-left"])
+                                    drawImages(spriteMapCorner["down-left"])
                                 }
 
                                 // upp  höger
                                 else if (fromX === -1 && toY === 1) {
-                                    drawCorner(spriteMapCorner["upp-right"])
+                                    drawImages(spriteMapCorner["upp-right"])
                                 }
 
                                 // upp  vänster
                                 else if (fromX === 1 && toY === 1) {
-                                    drawCorner(spriteMapCorner["upp-left"])
-                                }
 
-                                // höger  ner
-                                else if (fromY === -1 && toX === -1) {
-                                    drawCorner(spriteMapCorner["right-down"])
+                                    drawImages(spriteMapCorner["upp-left"])
                                 }
 
                                 // vänster  ner
-                                else if (fromY === -1 && toX === 1) {
-                                    drawCorner(spriteMapCorner["left-down"])
+                                else if (fromY === -1 && toX === -1) {
+                                    drawImages(spriteMapCorner["left-down"])
                                 }
 
-                                // höger  upp
+                                // höger  ner
+                                else if (fromY === -1 && toX === 1) {
+                                    drawImages(spriteMapCorner["right-down"])
+                                }
+
+                                // left  upp
                                 else if (fromY === 1 && toX === -1) {
-                                    drawCorner(spriteMapCorner["right-upp"])
+                                    drawImages(spriteMapCorner["left-upp"])
                                 }
 
                                 // vänster  upp
                                 else if (fromY === 1 && toX === 1) {
-                                    drawCorner(spriteMapCorner["left-upp"])
+                                    drawImages(spriteMapCorner["right-upp"])
                                 }
 
 
-
-
+                                
+                                
                             } else if (part.y - next.y === -1) { // ifall partens y - nästa parts y = -1y = upp
-                                ctx.fillRect(
-                                    part.x * squareSize.x,
-                                    part.y * squareSize.y,
-                                    squareSize.x,
-                                    squareSize.y)
-
-
+                                drawImages(spriteMapBody["upp"])
                             } else if (part.y - next.y === 1) {
-
-                                ctx.fillRect(
-                                    part.x * squareSize.x,
-                                    part.y * squareSize.y,
-                                    squareSize.x,
-                                    squareSize.y)
+                                drawImages(spriteMapBody["down"])
                             } else if (part.x - next.x === 1) {
-
-                                ctx.fillRect(
-                                    part.x * squareSize.x,
-                                    part.y * squareSize.y,
-                                    squareSize.x,
-                                    squareSize.y)
+                                drawImages(spriteMapBody["right"])
                             } else if (part.x - next.x === -1) {
-
-                                ctx.fillRect(
-                                    part.x * squareSize.x,
-                                    part.y * squareSize.y,
-                                    squareSize.x,
-                                    squareSize.y)
-
+                                drawImages(spriteMapBody["left"])
                             }
                         }
                     }
                     if(index >= snake.length - 1) { // back
-                        ctx.fillRect(
-                            part.x * squareSize.x,
-                            part.y * squareSize.y,
-                            squareSize.x,
-                            squareSize.y)
+                        if (before.y - part.y === -1){
+                            drawImages(spriteMapButt["upp"])
+                        }else if (before.y - part.y === 1){
+                            drawImages(spriteMapButt["down"])
+                        }else if (before.x - part.x === 1){
+                            drawImages(spriteMapButt["right"])
+                        }else if (before.x - part.x === -1){
+                            drawImages(spriteMapButt["left"])
+                        }
                     }
                     if (index <= 0) { // head
                         if (speed.y === -1) {
-                            ctx.fillRect(
-                                part.x * squareSize.x,
-                                part.y * squareSize.y,
-                                squareSize.x,
-                                squareSize.y)
+                            drawImages(spiteMapHead["upp"])
                         } else if (speed.y === 1) {
-                            ctx.fillRect(
-                                part.x * squareSize.x,
-                                part.y * squareSize.y,
-                                squareSize.x,
-                                squareSize.y)
+                            drawImages(spiteMapHead["down"])
                         } else if (speed.x === 1) {
-                            ctx.fillRect(
-                                part.x * squareSize.x,
-                                part.y * squareSize.y,
-                                squareSize.x,
-                                squareSize.y)
+                            drawImages(spiteMapHead["right"])
                         } else if (speed.x === -1) {
-                            ctx.fillRect(
-                                part.x * squareSize.x,
-                                part.y * squareSize.y,
-                                squareSize.x,
-                                squareSize.y)
+                            drawImages(spiteMapHead["left"])
                         }
 
                     }
